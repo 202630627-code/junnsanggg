@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘 뭐 먹지? | 저녁 메뉴 추천</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Gowun Dodum', sans-serif;
+            background: linear-gradient(135deg, #FFF6E9 0%, #FFEFD5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #4A3E3D;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #FFFFFF;
+            width: 100%;
+            max-width: 480px;
+            padding: 40px 30px;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(222, 123, 92, 0.15);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #FFF0E5;
+        }
+
+        .header {
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-family: 'Jua', sans-serif;
+            font-size: 2.2rem;
+            color: #FF6B6B;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            font-size: 0.95rem;
+            color: #8C7A7B;
+        }
+
+        /* 메뉴 결과 영역 */
+        .card-area {
+            background: #FFFBF7;
+            border: 2px dashed #FFD8CC;
+            border-radius: 20px;
+            padding: 35px 20px;
+            margin-bottom: 30px;
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .emoji-display {
+            font-size: 5.5rem;
+            line-height: 1.1;
+            margin-bottom: 15px;
+            display: inline-block;
+            transition: transform 0.2s ease;
+        }
+
+        .food-name {
+            font-family: 'Jua', sans-serif;
+            font-size: 1.8rem;
+            color: #333333;
+            margin-bottom: 6px;
+        }
+
+        .food-category {
+            display: inline-block;
+            padding: 4px 12px;
+            background-color: #FFE3E3;
+            color: #FF5252;
+            font-size: 0.85rem;
+            font-weight: bold;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
+        .food-desc {
+            font-size: 0.9rem;
+            color: #776666;
+            line-height: 1.4;
+            word-break: keep-all;
+        }
+
+        /* 추천 버튼 스타일 */
+        .btn-recommend {
+            font-family: 'Jua', sans-serif;
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+            color: #FFFFFF;
+            border: none;
+            width: 100%;
+            padding: 16px 0;
+            border-radius: 18px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.35);
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .btn-recommend:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(255, 107, 107, 0.45);
+        }
+
+        .btn-recommend:active {
+            transform: translateY(1px);
+            box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-recommend:disabled {
+            background: #CCCCCC;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* 이모지 통통 튀는 애니메이션 */
+        .bounce {
+            animation: bounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes bounce {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.1); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .footer-note {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #B0A0A0;
+        }
+
+        @media (max-width: 380px) {
+            .container { padding: 30px 20px; }
+            .header h1 { font-size: 1.8rem; }
+            .emoji-display { font-size: 4.5rem; }
+            .food-name { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>🍱 오늘 뭐 먹지?</h1>
+            <p>고민되는 오늘 저녁, 버튼을 눌러 추천받아 보세요!</p>
+        </div>
+
+        <div class="card-area" id="cardArea">
+            <div class="emoji-display" id="emojiDisplay">❓</div>
+            <div class="food-name" id="foodName">무엇을 먹게 될까요?</div>
+            <div class="food-category" id="foodCategory" style="display: none;">카테고리</div>
+            <div class="food-desc" id="foodDesc">아래 버튼을 누르면 오늘의 저녁 메뉴를 랜덤으로 추천해 드립니다.</div>
+        </div>
+
+        <button class="btn-recommend" id="recommendBtn" onclick="pickDinner()">🎲 저녁 메뉴 추천받기</button>
+
+        <div class="footer-note">
+            맛있는 저녁 식사 되세요! ✨
+        </div>
+    </div>
+
+    <script>
+        // 저녁 메뉴 데이터베이스 (이모지, 메뉴명, 카테고리, 설명)
+        const menuList = [
+            { emoji: "🍕", name: "피자", category: "양식", desc: "고소한 치즈와 풍성한 토핑의 완벽한 조화!" },
+            { emoji: "🍔", name: "수제 버거", category: "양식", desc: "육즙 가득한 패티와 신선한 야채가 들어간 버거!" },
+            { emoji: "🍗", name: "치킨", category: "야식/한식", desc: "오늘 하루의 피로를 날려줄 바삭한 치킨 한 마리!" },
+            { emoji: "🍜", name: "라멘", category: "일식", desc: "진하고 깊은 국물 맛이 일품인 따뜻한 라멘." },
+            { emoji: "🍣", name: "초밥", category: "일식", desc: "깔끔하고 정갈하게 즐기는 신선한 초밥 한 접시." },
+            { emoji: "🥓", name: "삼겹살", category: "한식", desc: "지글지글 불판 위에 노릇하게 구워 먹는 고기!" },
+            { emoji: "🥘", name: "김치찌개", category: "한식", desc: "얼큰하고 칼칼한 한국인의 대표 밥도둑." },
+            { emoji: "🍲", name: "부대찌개", category: "한식", desc: "햄과 소시지가 듬뿍 들은 보글보글 부대찌개." },
+            { emoji: "🍛", name: "카레", category: "일식/한식", desc: "향긋한 커리 향과 풍부한 식감이 어우러진 한 끼." },
+            { emoji: "🍝", name: "파스타", category: "양식", desc: "부드러운 크림이나 상큼한 토마토소스 파스타." },
+            { emoji: "🥟", name: "떡볶이 & 만두", category: "분식", desc: "매콤달콤한 떡볶이 국물에 바삭한 만두 찍어먹기!" },
+            { emoji: "🌮", name: "타코", category: "멕시칸", desc: "이국적인 매력이 물씬 풍기는 신선한 타코." },
+            { emoji: "🍲", name: "샤브샤브", category: "일식/한식", desc: "따뜻한 육수에 신선한 야채와 고기를 퐁당!" },
+            { emoji: "🥩", name: "스테이크", category: "양식", desc: "특별한 오늘 저녁을 만들어줄 근사한 스테이크." },
+            { emoji: "🥣", name: "마라탕", category: "중식", desc: "중독성 넘치는 얼얼하고 매콤한 마라의 맛!" },
+            { emoji: "🥢", name: "짜장면 & 탕수육", category: "중식", desc: "언제 먹어도 실패 없는 보장된 중식 조합." },
+            { emoji: "🥗", name: "포케 & 샐러드", category: "건강식", desc: "오늘 저녁은 가볍고 신선하게 속을 편안하게!" },
+            { emoji: "🍖", name: "족발 & 보쌈", category: "한식", desc: "쫄깃하고 부드러운 고기에 겉절이 한 입!" }
+        ];
+
+        function pickDinner() {
+            const btn = document.getElementById('recommendBtn');
+            const emojiDisplay = document.getElementById('emojiDisplay');
+            const foodName = document.getElementById('foodName');
+            const foodCategory = document.getElementById('foodCategory');
+            const foodDesc = document.getElementById('foodDesc');
+
+            // 버튼 비활성화 및 텍스트 변경
+            btn.disabled = true;
+            btn.innerText = "메뉴 고르는 중... 🤤";
+
+            let counter = 0;
+            const totalTicks = 15; // 모션 반복 횟수
+
+            // 메뉴가 무작위로 돌아가는 연출
+            const interval = setInterval(() => {
+                const tempItem = menuList[Math.floor(Math.random() * menuList.length)];
+                emojiDisplay.innerText = tempItem.emoji;
+                foodName.innerText = tempItem.name;
+                
+                counter++;
+                if (counter >= totalTicks) {
+                    clearInterval(interval);
+                    
+                    // 최종 선택된 메뉴
+                    const selected = menuList[Math.floor(Math.random() * menuList.length)];
+
+                    emojiDisplay.innerText = selected.emoji;
+                    foodName.innerText = selected.name;
+                    foodCategory.innerText = selected.category;
+                    foodCategory.style.display = "inline-block";
+                    foodDesc.innerText = selected.desc;
+
+                    // 바운스 애니메이션 재실행
+                    emojiDisplay.classList.remove('bounce');
+                    void emojiDisplay.offsetWidth; // DOM reflow
+                    emojiDisplay.classList.add('bounce');
+
+                    // 버튼 상태 원복
+                    btn.disabled = false;
+                    btn.innerText = "🎲 다른 메뉴 추천받기";
+                }
+            }, 80);
+        }
+    </script>
+</body>
+</html>
